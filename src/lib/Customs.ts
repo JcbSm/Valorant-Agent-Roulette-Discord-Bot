@@ -42,7 +42,7 @@ export class Customs {
             new ValAgent('BRIMSTONE', '🧔🏻', true),
             new ValAgent('SOVA', '🏹', true),
             new ValAgent('SAGE', '🤍', true),
-            new ValAgent('PHEONIX', '🔥', true),
+            new ValAgent('PHOENIX', '🔥', true),
             new ValAgent('JETT', '💨', true),
             new ValAgent('VIPER', '🐍'),
             new ValAgent('OMEN', '👻'),
@@ -158,13 +158,13 @@ export class Customs {
             switch (interaction.customId) {
 
                 case 'customTeam1':
-                    if ([...this.players.values()].filter(p => p.team === 1).length >= 5) break;
+                    if ([...this.players.values()].filter(p => p.team === 0).length >= 5) break;
                     this.players.set(interaction.user.id, new Player(interaction.user, 0, [...this.agents].filter(a => a.default)));
                     interaction.update({ embeds: [ this.getEmbed() ], components: this.getComponents() });
                     break;
 
                 case 'customTeam2':
-                    if ([...this.players.values()].filter(p => p.team === 2).length >= 5) break;
+                    if ([...this.players.values()].filter(p => p.team === 1).length >= 5) break;
                     this.players.set(interaction.user.id, new Player(interaction.user, 1, [...this.agents].filter(a => a.default)));
                     interaction.update({ embeds: [ this.getEmbed() ], components: this.getComponents() });
                     break;
@@ -284,14 +284,14 @@ export class Customs {
                         label: 'JOIN TEAM 1',
                         customId: 'customTeam1',
                         style: 'PRIMARY',
-                        disabled: disabled || [...this.players.values()].filter(p => p.team === 1).length >= 5
+                        disabled: disabled || [...this.players.values()].filter(p => p.team === 0).length >= 5
                     },
                     {
                         type: 'BUTTON',
                         label: 'JOIN TEAM 2',
                         customId: 'customTeam2',
                         style: 'DANGER',
-                        disabled: disabled || [...this.players.values()].filter(p => p.team === 2).length >= 5
+                        disabled: disabled || [...this.players.values()].filter(p => p.team === 1).length >= 5
                     },
                     {
                         type: 'BUTTON',
