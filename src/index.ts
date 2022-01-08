@@ -42,7 +42,9 @@ console.log("Logging in...");
 
     try {
 
-        await client.login("OTI2MDgyNDY0NTA4Njc0MDYw.Yc2fgQ.OKIC0T35MARov3UXgiAD2-P0BII");
+        
+        (await import ('dotenv')).config();	
+        await client.login(process.env.TOKEN);
 
         console.log("Logged in.")
 
