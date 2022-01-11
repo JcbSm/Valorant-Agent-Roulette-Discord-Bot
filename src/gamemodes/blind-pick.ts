@@ -1,6 +1,6 @@
 import { Gamemode } from "../lib/Gamemode";
 import type { Customs } from "lib/Customs";
-import { ButtonInteraction, MessageActionRow, MessageEmbed, SelectMenuInteraction } from "discord.js";
+import { ButtonInteraction, MessageActionRow, MessageAttachment, MessageEmbed, SelectMenuInteraction } from "discord.js";
 import type { ValAgent } from "lib/ValAgent";
 import type { Player } from "lib/Players";
 import { colors } from "../constants.json";
@@ -119,7 +119,8 @@ export default class extends Gamemode {
 
             player.selectionMessage = await player.user.send({ embeds: [{
                 title: 'AGENT SELECT',
-                description: `Starting...`
+                description: `Starting...`,
+                color: colors.valRed
             }]})!
 
         }
@@ -195,7 +196,22 @@ export default class extends Gamemode {
 
         for (const [, player] of this.customs.players) {
 
-            player.selectionMessage.edit({ content: 'All agents chosen', embeds: [{ description: `[\`JUMP BACK TO SERVER\`](${this.customs.message.url})`, color: colors.valRed }] })
+            
+            const agentFileName = player.selectedAgent.name.replace(/\//gi, '').toLowerCase();
+
+            player.selectionMessage.edit({
+                embeds: [
+                    {
+                        title: player.selectedAgent.name,
+                        description: `Chosen by \`${player.selectedBy.user.tag}\`\n\n[\`Back to server...\`](${this.customs.message.url})`,
+                        thumbnail: {
+                            url: `attachment://${agentFileName}.png`
+                        },
+                        color: colors.valRed
+                    }
+                ],
+                files: [ new MessageAttachment(`./src/assets/agents/${agentFileName}.png`, `${agentFileName}.png`)],
+            })
 
         }
 
@@ -206,11 +222,11 @@ export default class extends Gamemode {
         await this.customs.message.edit({ embeds: [
             new MessageEmbed({
                 title: 'CUSTOMS',
-                description: `Leader: <@${this.customs.interaction.user.id}>\nPlayers: ${this.customs.players.size}/10\nGamemode: ${this.customs.gamemode.name.toUpperCase()}\n\u200b`,
+                description: `Leader: <@${this.customs.interaction.user.id}>\nPlayers: \`${this.customs.players.size}/10\`\n\u200b`,
                 fields: [
                     {
                         name: 'TEAM 1',
-                        value: this.getTeam1List() + '\n\u200b',
+                        value: '\u200b\n' + this.getTeam1List() + '\n\u200b',
                         inline: true
                     },
                     {
@@ -220,7 +236,7 @@ export default class extends Gamemode {
                     },
                     {
                         name: 'TEAM 2',
-                        value: this.getTeam2List() + '\n\u200b',
+                        value: '\u200b\n' + this.getTeam2List() + '\n\u200b',
                         inline: true
                     },
                     {
@@ -239,13 +255,13 @@ export default class extends Gamemode {
 
     getTeam1List(): string {
 
-        return [...this.customs.players.values()].filter(p => p.team === 0).map((p: Player) => `<@${p.user.id}>\n${p.selectedAgent.emoji} ${p.selectedAgent.name}\nSelected by <@${p.selectedBy.user.id}>\n\u200b`).join('\n')
+        return [...this.customs.players.values()].filter(p => p.team === 0).map((p: Player) => `**${p.selectedAgent.name}**\n${this.customs.client.emojis.resolve(p.selectedAgent.emojiID)} <@${p.user.id}>\n\u200b`).join('\n');
 
     }
 
     getTeam2List(): string {
 
-        return [...this.customs.players.values()].filter(p => p.team === 1).map((p: Player) => `<@${p.user.id}>\n${p.selectedAgent.emoji} ${p.selectedAgent.name}\nSelected by <@${p.selectedBy.user.id}>\n\u200b`).join('\n')
+        return [...this.customs.players.values()].filter(p => p.team === 1).map((p: Player) => `**${p.selectedAgent.name}**\n${this.customs.client.emojis.resolve(p.selectedAgent.emojiID)} <@${p.user.id}>\n\u200b`).join('\n');
 
     }
 
@@ -268,12 +284,13 @@ export default class extends Gamemode {
     getAgentListEmbed(player: Player, confirmed: boolean = false) {
         return confirmed ? {
             title: 'Selected Agents',
-            description: player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n'),
-            colors: colors.valDarkGrey
+            description: player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n'),
+            color: colors.valDarkGrey
         } : {
             title: 'Available Agents',
-            description: `${player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n')}\n\nPlease select which others you own below. (No lying!)`,
+            description: `${player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n')}\n\nPlease select which others you own below. (No lying!)`,
             color: colors.valDarkGrey
         }
     }
+
 }

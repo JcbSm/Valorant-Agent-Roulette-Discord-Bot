@@ -5,7 +5,7 @@ import { ValMap } from "./ValMap";
 import { ValAgent } from "./ValAgent";
 import { promises as fsp } from "fs";
 
-import Standard from "../gamemodes/standard";
+import BlindPick from "../gamemodes/blind-pick";
 import { colors } from "../constants.json";
 
 export interface Customs {
@@ -40,26 +40,27 @@ export class Customs {
         ];
 
         this.agents = [
-            new ValAgent('BRIMSTONE', '🌫', true),
-            new ValAgent('SOVA', '🏹', true),
-            new ValAgent('SAGE', '🤍', true),
-            new ValAgent('PHOENIX', '🔥', true),
-            new ValAgent('JETT', '💨', true),
-            new ValAgent('VIPER', '🐍'),
-            new ValAgent('OMEN', '👻'),
-            new ValAgent('KILLJOY', '🔧'),
-            new ValAgent('CYPHER', '🤠'),
-            new ValAgent('REYNA', '👁'),
-            new ValAgent('RAZE', '💣'),
-            new ValAgent('BREACH', '🦾'),
-            new ValAgent('SKYE', '🍃'),
-            new ValAgent('YORU', '🐺'),
-            new ValAgent('ASTRA', '🌌'),
-            new ValAgent('KAY/O', '🤖'),
-            new ValAgent('CHAMBER', '🃏')
+            new ValAgent('BRIMSTONE', '🌫', '930526575299027034', true),
+            new ValAgent('SOVA', '🏹', '930526575319982133', true),
+            new ValAgent('SAGE', '🤍', '930526575366140044', true),
+            new ValAgent('PHOENIX', '🔥', '930526575408070766', true),
+            new ValAgent('JETT', '💨', '930526575366111243', true),
+            new ValAgent('VIPER', '🐍', '930526575626178771'),
+            new ValAgent('OMEN', '👻', '930526575311605781'),
+            new ValAgent('KILLJOY', '🔧', '930526575982706798'),
+            new ValAgent('CYPHER', '🤠', '930526575248687165'),
+            new ValAgent('REYNA', '👁', '930526575395483739'),
+            new ValAgent('RAZE', '💣', '930526575789760512'),
+            new ValAgent('BREACH', '🦾', '930526575978500096'),
+            new ValAgent('SKYE', '🍃', '930526575793930280'),
+            new ValAgent('YORU', '🐺', '930526575953346560'),
+            new ValAgent('ASTRA', '🌌', '930526576028827748'),
+            new ValAgent('KAY/O', '🤖', '930526575596810301'),
+            new ValAgent('CHAMBER', '🃏', '930526575332573235')
         ]
 
         this.mappool = [...this.maps];
+        this.gamemode = new BlindPick(this);
         this.gamemodes = [];
         this.map = this.maps[0];
 
@@ -68,8 +69,6 @@ export class Customs {
     async send() {
 
         this.gamemodes = await this.getGamemodes();
-
-        this.gamemode = this.gamemodes.find(g => g.name === this.interaction.options.get('gamemode')?.value) || new Standard(this);
 
         this.message = await this.interaction.channel?.send({ embeds: [ this.getEmbed() ], components: this.getComponents(), files: [ this.getMapImageAttachment() ] })!;
 
@@ -221,7 +220,7 @@ export class Customs {
 
         return new MessageEmbed({
             title: 'CUSTOMS',
-            description: `Leader: <@${this.interaction.user.id}>\nPlayers: ${this.players.size}/10\nGamemode: ${this.gamemode.name.toUpperCase()}\n\u200b`,
+            description: `Leader: <@${this.interaction.user.id}>\nPlayers: \`${this.players.size}/10\`\n\u200b`,
             fields: [
                 {
                     name: 'MAP POOL',
@@ -322,10 +321,10 @@ export class Customs {
                     },
                     {
                         type: 'BUTTON',
-                        label: 'SELECT GAMEMODE',
-                        customId: 'selectGamemode',
-                        style: 'SECONDARY',
-                        emoji: '💣'
+                        label: 'RE-ROLL MAP',
+                        customId: 'mapRoll',
+                        style: 'PRIMARY',
+                        emoji: '🎲'
                     },
                 ]
             }),
@@ -335,10 +334,9 @@ export class Customs {
                 components: [
                     {
                         type: 'BUTTON',
-                        label: 'RE-ROLL MAP',
-                        customId: 'mapRoll',
-                        style: 'PRIMARY',
-                        emoji: '🎲'
+                        label: 'START',
+                        customId: 'customStart',
+                        style: 'SUCCESS'
                     },
                     {
                         type: 'BUTTON',
@@ -353,18 +351,6 @@ export class Customs {
                         customId: 'closeCustoms',
                         style: 'DANGER',
                         emoji: '✖'
-                    }
-                ]
-            }),
-
-            new MessageActionRow({
-                type: 'ACTION_ROW',
-                components: [
-                    {
-                        type: 'BUTTON',
-                        label: 'START',
-                        customId: 'customStart',
-                        style: 'SUCCESS'
                     }
                 ]
             })
@@ -446,7 +432,7 @@ export class Customs {
 
     getPlayerList(): string {
 
-        return this.players.size > 0 ? [...this.players.values()].map((p: Player) => `<@${p.user.id}>`).join('\n') : 'Click to join!'
+        return this.players.size > 0 ? [...this.players.values()].map((p: Player, i: number) => `\`${i + 1}.\` <@${p.user.id}>`).join('\n') : 'Click to join!'
 
     }
 
@@ -464,7 +450,7 @@ export class Customs {
 
     getMapImageAttachment(): MessageAttachment {
 
-        return new MessageAttachment(`./src/assets/${this.map.name.toLowerCase()}.png`, `${this.map.name}.png`);
+        return new MessageAttachment(`./src/assets/maps/${this.map.name.toLowerCase()}.png`, `${this.map.name}.png`);
 
     }
 

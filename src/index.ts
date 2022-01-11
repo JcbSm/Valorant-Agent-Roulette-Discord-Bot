@@ -22,23 +22,6 @@ const commands: ApplicationCommandData[] = [
     {
         name: 'customs',
         description: 'Start a Valorant Customs!',
-        options: [
-            {
-                type: 'STRING',
-                name: 'gamemode',
-                description: 'The gamemode',
-                choices: [
-                    {
-                        name: 'Standard',
-                        value: 'standard'
-                    },
-                    {
-                        name: 'Blind Pick',
-                        value: 'blind pick'
-                    }
-                ]
-            }
-        ]
     },
     {
         name: 'invite',
