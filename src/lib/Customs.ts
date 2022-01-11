@@ -60,8 +60,6 @@ export class Customs {
         ]
 
         this.mappool = [...this.maps];
-
-        this.gamemode = new Standard(this);
         this.gamemodes = [];
         this.map = this.maps[0];
 
@@ -70,6 +68,8 @@ export class Customs {
     async send() {
 
         this.gamemodes = await this.getGamemodes();
+
+        this.gamemode = this.gamemodes.find(g => g.name === this.interaction.options.get('gamemode')?.value) || new Standard(this);
 
         this.message = await this.interaction.channel?.send({ embeds: [ this.getEmbed() ], components: this.getComponents(), files: [ this.getMapImageAttachment() ] })!;
 
