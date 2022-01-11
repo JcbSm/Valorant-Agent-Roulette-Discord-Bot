@@ -48,12 +48,22 @@ console.log("Logging in...");
 
         console.log("Logged in.")
 
-        await client.application?.commands.set([
-            {
-                name: 'customs',
-                description: 'Start a Valorant Customs!'
-            }
-        ], '447504770719154192');
+        for (const [id, guild] of (await client.guilds.fetch())) {
+
+            (async () => {
+            
+                await client.application?.commands.set([
+                    {
+                        name: 'customs',
+                        description: 'Start a Valorant Customs!'
+                    }
+                ], id);
+
+                console.log(`Loaded guild ${id} | ${guild.name}`);
+
+            })();
+
+        }
 
     } catch (error) {
         console.error(error);
