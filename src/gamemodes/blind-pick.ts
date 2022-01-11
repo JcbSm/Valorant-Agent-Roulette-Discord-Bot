@@ -3,6 +3,7 @@ import type { Customs } from "lib/Customs";
 import { ButtonInteraction, MessageActionRow, MessageEmbed, SelectMenuInteraction } from "discord.js";
 import type { ValAgent } from "lib/ValAgent";
 import type { Player } from "lib/Players";
+import { colors } from "../constants.json";
 
 export default class extends Gamemode {
     constructor(customs: Customs) {
@@ -194,7 +195,7 @@ export default class extends Gamemode {
 
         for (const [, player] of this.customs.players) {
 
-            player.selectionMessage.edit({ content: 'All agents chosen', embeds: [{ description: `[\`JUMP BACK TO SERVER\`](${this.customs.message.url})` }] })
+            player.selectionMessage.edit({ content: 'All agents chosen', embeds: [{ description: `[\`JUMP BACK TO SERVER\`](${this.customs.message.url})`, color: colors.valRed }] })
 
         }
 
@@ -227,7 +228,7 @@ export default class extends Gamemode {
                         value: this.customs.map.name
                     }
                 ],
-                color: "BLURPLE",
+                color: colors.valRed,
                 image: {
                     url: `attachment://${this.customs.map.name}.png`
                 }
@@ -259,7 +260,7 @@ export default class extends Gamemode {
         return new MessageEmbed({
             title: 'AGENT SELECT',
             description: `Waiting on \`${pickingPlayer.user.tag}\` to select an agent for someone.`,
-            color: 'DARK_PURPLE',
+            color: colors.valRed,
         })
 
     }
@@ -267,10 +268,12 @@ export default class extends Gamemode {
     getAgentListEmbed(player: Player, confirmed: boolean = false) {
         return confirmed ? {
             title: 'Selected Agents',
-            description: player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n')
+            description: player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n'),
+            colors: colors.valDarkGrey
         } : {
             title: 'Available Agents',
-            description: `${player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n')}\n\nPlease select which others you own below. (No lying!)`
+            description: `${player.agents.map(a => `${a.emoji} - **${a.name}**`).join('\n')}\n\nPlease select which others you own below. (No lying!)`,
+            color: colors.valDarkGrey
         }
     }
 }

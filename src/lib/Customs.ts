@@ -6,6 +6,7 @@ import { ValAgent } from "./ValAgent";
 import { promises as fsp } from "fs";
 
 import Standard from "../gamemodes/standard";
+import { colors } from "../constants.json";
 
 export interface Customs {
     client: Client;
@@ -39,7 +40,7 @@ export class Customs {
         ];
 
         this.agents = [
-            new ValAgent('BRIMSTONE', '🧔🏻', true),
+            new ValAgent('BRIMSTONE', '🌫', true),
             new ValAgent('SOVA', '🏹', true),
             new ValAgent('SAGE', '🤍', true),
             new ValAgent('PHOENIX', '🔥', true),
@@ -257,7 +258,7 @@ export class Customs {
                     value: this.map.name
                 }
             ],
-            color: "BLURPLE",
+            color: colors.valRed,
             image: {
                 url: `attachment://${this.map.name}.png`
             }
