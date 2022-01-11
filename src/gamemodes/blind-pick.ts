@@ -5,9 +5,17 @@ import type { ValAgent } from "lib/ValAgent";
 import type { Player } from "lib/Players";
 import { colors } from "../constants.json";
 
-export default class extends Gamemode {
+export default interface BlindPick {
+    defaultAgents: ValAgent[];
+    nonDefaultAgents: ValAgent[];
+}
+
+export default class BlindPick extends Gamemode {
     constructor(customs: Customs) {
         super(customs, 'blind pick', 'Pick an opponents agent for them.')
+
+        this.defaultAgents = [...this.customs.agents].filter(a => a.default);
+        this.nonDefaultAgents = [...this.customs.agents].filter(a => !a.default);
     }
 
     async run() {
@@ -21,48 +29,9 @@ export default class extends Gamemode {
 
             picking.push(new Promise(async (resolve) => {
 
-                let sent = await player.user.send({ embeds: [ this.getAgentListEmbed(player) ], components: [
-                    new MessageActionRow({
-                        type: 'ACTION_ROW',
-                        components: [
-                            {
-                                type: 'SELECT_MENU',
-                                customId: 'agentSelectMenu',
-                                maxValues: nonDefaultAgents.length,
-                                minValues: 0,
-                                placeholder: 'Select available agents',
-                                options: nonDefaultAgents.map(a => {
+                let sent = await player.user.send({ embeds: [ this.getAgentListEmbed(player) ], components: this.getAgentListComponents(true) });
     
-                                    return {
-                                        label: a.name,
-                                        value: a.name,
-                                        emoji: a.emoji
-                                    }
-    
-                                })
-                            }
-                        ]
-                    }),
-                    new MessageActionRow({
-                        type: 'ACTION_ROW',
-                        components: [
-                            {
-                                type: 'BUTTON',
-                                customId: 'agentConfirm',
-                                label: 'CONFIRM',
-                                style: 'DANGER'
-                            },
-                            {
-                                type: 'BUTTON',
-                                customId: 'agentReset',
-                                label: 'RESET',
-                                style: 'SECONDARY'
-                            }
-                        ]
-                    })
-                ]});
-    
-                const collector = sent.createMessageComponentCollector({ time: 60*1000 });
+                const collector = sent.createMessageComponentCollector({ time: 45*1000 });
     
                 collector.on('collect', (interaction: SelectMenuInteraction | ButtonInteraction) => {
     
@@ -74,11 +43,6 @@ export default class extends Gamemode {
                                 player.agents = [...defaultAgents];
                                 break;
     
-                            case 'agentConfirm':
-                                interaction.update({ embeds: [this.getAgentListEmbed(player, true)], components: [] });
-                                collector.stop();
-                                return;
-    
                         }
     
                     } else if (interaction.isSelectMenu()) {
@@ -87,7 +51,7 @@ export default class extends Gamemode {
     
                     }
     
-                    interaction.update({ embeds: [ this.getAgentListEmbed(player) ]});
+                    interaction.update({ embeds: [ this.getAgentListEmbed(player)], components: this.getAgentListComponents() });
     
                 });
     
@@ -102,7 +66,7 @@ export default class extends Gamemode {
         }
 
         await Promise.all(picking);
-        setTimeout(() => this.agentSelection(), 5000);
+        setTimeout(() => this.agentSelection(), 2000);
 
     }
 
@@ -287,10 +251,59 @@ export default class extends Gamemode {
             description: player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n'),
             color: colors.valDarkGrey
         } : {
-            title: 'Available Agents',
-            description: `${player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n')}\n\nPlease select which others you own below. (No lying!)`,
-            color: colors.valDarkGrey
+            title: 'Your agents...',
+            description: `As I am just a bot, I need to know all the agents which you have unlocked.\nSelect them from the menu below.\n\u200b`,
+            fields: [
+                {
+                    name: 'Available Agents',
+                    value: `${player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n')}`
+                }
+            ],
+            color: colors.valDarkGrey,
+            footer: {
+                text: 'You have 45s from when this messages was sent.'
+            }
         }
+    }
+
+    getAgentListComponents(disabled: boolean = false) {
+
+        return [
+            new MessageActionRow({
+                type: 'ACTION_ROW',
+                components: [
+                    {
+                        type: 'SELECT_MENU',
+                        customId: 'agentSelectMenu',
+                        maxValues: this.nonDefaultAgents.length,
+                        minValues: 0,
+                        placeholder: 'Select available agents',
+                        options: this.nonDefaultAgents.map(a => {
+
+                            return {
+                                label: a.name,
+                                value: a.name,
+                                emoji: a.emoji
+                            }
+
+                        })
+                    }
+                ]
+            }),
+            new MessageActionRow({
+                type: 'ACTION_ROW',
+                components: [
+                    {
+                        type: 'BUTTON',
+                        customId: 'agentReset',
+                        label: 'RESET',
+                        style: 'SECONDARY',
+                        disabled: disabled
+                    }
+                ]
+            })
+        ]
+
     }
 
 }
