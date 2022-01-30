@@ -56,7 +56,8 @@ export class Customs {
             new ValAgent('YORU', '🐺', '930526575953346560'),
             new ValAgent('ASTRA', '🌌', '930526576028827748'),
             new ValAgent('KAY/O', '🤖', '930526575596810301'),
-            new ValAgent('CHAMBER', '🃏', '930526575332573235')
+            new ValAgent('CHAMBER', '🃏', '930526575332573235'),
+            new ValAgent('NEON', '⚡', '936618293417115698')
         ]
 
         this.mappool = [...this.maps];
