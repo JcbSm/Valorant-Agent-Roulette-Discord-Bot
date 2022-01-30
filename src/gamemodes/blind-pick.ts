@@ -204,7 +204,7 @@ export default class BlindPick extends Gamemode {
                         inline: true
                     },
                     {
-                        name: 'CURRENT MAP',
+                        name: 'MAP',
                         value: this.customs.map.name
                     }
                 ],
