@@ -1,6 +1,6 @@
 import { Gamemode } from "../lib/Gamemode";
 import type { Customs } from "lib/Customs";
-import { ButtonInteraction, MessageActionRow, MessageAttachment, MessageEmbed, SelectMenuInteraction } from "discord.js";
+import { ButtonInteraction, MessageActionRow, MessageAttachment, MessageEmbed } from "discord.js";
 import type { ValAgent } from "lib/ValAgent";
 import type { Player } from "lib/Players";
 import { colors } from "../constants.json";
@@ -20,38 +20,23 @@ export default class BlindPick extends Gamemode {
 
     async run() {
 
-        const defaultAgents: ValAgent[] = [...this.customs.agents].filter(a => a.default);
-        const nonDefaultAgents: ValAgent[] = [...this.customs.agents].filter(a => !a.default);
-
         let picking = [];
 
-        for (const [,player] of this.customs.players) {
+        for (const [, player] of this.customs.players) {
 
             picking.push(new Promise(async (resolve) => {
 
-                let sent = await player.user.send({ embeds: [ this.getAgentListEmbed(player) ], components: this.getAgentListComponents(true) });
+                let sent = await player.user.send({ embeds: [ this.getAgentListEmbed(player) ], components: this.getAgentListComponents(player) });
     
-                const collector = sent.createMessageComponentCollector({ time: 45*1000 });
+                const collector = sent.createMessageComponentCollector({ time: 60*1000 });
     
-                collector.on('collect', (interaction: SelectMenuInteraction | ButtonInteraction) => {
+                collector.on('collect', (interaction: ButtonInteraction) => {
+
+                    if (interaction.customId === 'confirm') return collector.stop();
     
-                    if (interaction.isButton()) {
+                    player.agents.get(interaction.customId) ? player.agents.delete(interaction.customId) : player.agents.set(interaction.customId, this.customs.agents.find(a => a.name === interaction.customId)!);
     
-                        switch (interaction.customId) {
-    
-                            case 'agentReset':
-                                player.agents = [...defaultAgents];
-                                break;
-    
-                        }
-    
-                    } else if (interaction.isSelectMenu()) {
-    
-                        player.agents = [...defaultAgents].concat(...[...nonDefaultAgents].filter(a => interaction.values.includes(a.name)));
-    
-                    }
-    
-                    interaction.update({ embeds: [ this.getAgentListEmbed(player)], components: this.getAgentListComponents() });
+                    interaction.update({ embeds: [ this.getAgentListEmbed(player)], components: this.getAgentListComponents(player) });
     
                 });
     
@@ -110,25 +95,7 @@ export default class BlindPick extends Gamemode {
                     // Picking player message
                     if (player.user.id === pickingPlayer.user.id) {
                         
-                        await player.selectionMessage.edit({ embeds: [ this.getWaitingEmbed(pickingPlayer) ], components: [{
-                            type: 'ACTION_ROW',
-                            components: [
-                                {
-                                    type: 'SELECT_MENU',
-                                    maxValues: 1,
-                                    minValues: 1,
-                                    customId: 'agentSelect',
-                                    placeholder: "Pick an agent.",
-                                    options: pickable.map(a => {
-                                        return {
-                                            label: a.name,
-                                            value: a.name,
-                                            emoji: a.emoji
-                                        }
-                                    })
-                                }
-                            ]
-                        }] })
+                        await player.selectionMessage.edit({ embeds: [ this.getWaitingEmbed(pickingPlayer) ], components: this.getPickableAgentComponents(pickable) })
 
                     } else {
 
@@ -145,10 +112,10 @@ export default class BlindPick extends Gamemode {
             // wait for all messages to be edited
             await Promise.all(sent);
 
-            const selection = await pickingPlayer.selectionMessage.awaitMessageComponent({ componentType: 'SELECT_MENU', time: 25*1000}).catch(() => undefined);
+            const selection = await pickingPlayer.selectionMessage.awaitMessageComponent({ componentType: 'BUTTON', time: 30*1000}).catch(() => undefined);
             selection ? await selection.update({ components: [] }) : await pickingPlayer.selectionMessage.edit({ components: [] });;
 
-            const picked = selection?.values[0] ? pickable.find(a => a.name === selection.values[0])! : pickable[Math.floor(Math.random()*pickable.length)];
+            const picked = selection ? pickable.find(a => a.name === selection.customId)! : pickable[Math.floor(Math.random()*pickable.length)];
 
             targetPlayer.selectedAgent = picked;
             targetPlayer.selectedBy = pickingPlayer;
@@ -231,7 +198,7 @@ export default class BlindPick extends Gamemode {
 
     getPickableAgents(selected: ValAgent[][], player: Player): ValAgent[] {
 
-        return player.agents.filter(a => !selected[player.team].includes(a))
+        return [...player.agents.values()].filter(a => !selected[player.team].includes(a))
 
     }
 
@@ -248,17 +215,11 @@ export default class BlindPick extends Gamemode {
     getAgentListEmbed(player: Player, confirmed: boolean = false) {
         return confirmed ? {
             title: 'Selected Agents',
-            description: player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n'),
+            description: [...player.agents.values()].map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n'),
             color: colors.valDarkGrey
         } : {
             title: 'Your agents...',
             description: `As I am just a bot, I need to know all the agents which you have unlocked.\nSelect them from the menu below.\n\u200b`,
-            fields: [
-                {
-                    name: 'Available Agents',
-                    value: `${player.agents.map(a => `${this.customs.client.emojis.resolve(a.emojiID)} - **${a.name}**`).join('\n')}`
-                }
-            ],
             color: colors.valDarkGrey,
             footer: {
                 text: 'You have 45s from when this messages was sent.'
@@ -266,43 +227,74 @@ export default class BlindPick extends Gamemode {
         }
     }
 
-    getAgentListComponents(disabled: boolean = false) {
+    getAgentListComponents(player: Player) {
 
-        return [
-            new MessageActionRow({
+        const components: MessageActionRow[] = [];
+        const agents = [...this.customs.agents];
+
+        for (let i = 0; i < agents.length; i += 5) {
+
+            
+            components.push(new MessageActionRow({
                 type: 'ACTION_ROW',
-                components: [
-                    {
-                        type: 'SELECT_MENU',
-                        customId: 'agentSelectMenu',
-                        maxValues: this.nonDefaultAgents.length,
-                        minValues: 0,
-                        placeholder: 'Select available agents',
-                        options: this.nonDefaultAgents.map(a => {
+                components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
+                    return {
 
-                            return {
-                                label: a.name,
-                                value: a.name,
-                                emoji: a.emoji
-                            }
-
-                        })
-                    }
-                ]
-            }),
-            new MessageActionRow({
-                type: 'ACTION_ROW',
-                components: [
-                    {
                         type: 'BUTTON',
-                        customId: 'agentReset',
-                        label: 'RESET',
-                        style: 'SECONDARY',
-                        disabled: disabled
-                    }
-                ]
-            })
-        ]
+                        label: a.name,
+                        customId: a.name,
+                        emoji: a.emojiID,
+                        disabled: a.default,
+                        style: player.agents.get(a.name) ? 'SUCCESS' : 'SECONDARY'
+                        
+                    };
+                })
+            }));
+
+        }
+
+        components.push(new MessageActionRow({
+            type: 'ACTION_ROW',
+            components: [
+                {
+                    type: 'BUTTON',
+                    label: 'CONFIRM',
+                    customId: 'confirm',
+                    style: 'DANGER',
+                }
+            ]
+        }))
+
+        return components;
+
+    }
+
+    getPickableAgentComponents(pickable: ValAgent[]) {
+
+        const components: MessageActionRow[] = [];
+        const agents = [...pickable];
+
+        for (let i = 0; i < agents.length; i += 5) {
+
+            
+            components.push(new MessageActionRow({
+                type: 'ACTION_ROW',
+                components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
+                    return {
+
+                        type: 'BUTTON',
+                        label: a.name,
+                        customId: a.name,
+                        emoji: a.emojiID,
+                        style: 'SECONDARY'
+                        
+                    };
+                })
+            }));
+
+        }
+
+        return components;
 
     }
 

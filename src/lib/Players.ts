@@ -4,7 +4,7 @@ import type { ValAgent } from "./ValAgent";
 export interface Player {
     user: User;
     team: number;
-    agents: ValAgent[];
+    agents: Map<String, ValAgent>;
     selectionMessage: Message;
     selectedAgent: ValAgent;
     selectedBy: Player;
@@ -16,7 +16,7 @@ export class Player {
 
         this.user = user;
         this.team = team;
-        this.agents = [...agents];
+        this.agents = new Map(agents.map(a => [a.name, a]));
 
     }
 }
