@@ -33,10 +33,21 @@ export default class BlindPick extends Gamemode {
                 collector.on('collect', (interaction: ButtonInteraction) => {
 
                     if (interaction.customId === 'confirm') return collector.stop();
+                    else if (interaction.customId === 'selectAll') {
+
+                        player.agents = new Map(this.customs.agents.map(a => [a.name, a]));
+
+                    } else if (interaction.customId === 'deselectAll') {
+
+                        player.agents = new Map(this.customs.agents.filter(a => a.default).map(a => [a.name, a]));
+
+                    } else {
     
-                    player.agents.get(interaction.customId) ? player.agents.delete(interaction.customId) : player.agents.set(interaction.customId, this.customs.agents.find(a => a.name === interaction.customId)!);
+                        player.agents.get(interaction.customId) ? player.agents.delete(interaction.customId) : player.agents.set(interaction.customId, this.customs.agents.find(a => a.name === interaction.customId)!);
+
+                    }
     
-                    interaction.update({ embeds: [ this.getAgentListEmbed(player)], components: this.getAgentListComponents(player) });
+                    setTimeout(() => interaction.update({ embeds: [ this.getAgentListEmbed(player)], components: this.getAgentListComponents(player) }), 500);
     
                 });
     
@@ -256,6 +267,18 @@ export default class BlindPick extends Gamemode {
         components.push(new MessageActionRow({
             type: 'ACTION_ROW',
             components: [
+                {
+                    type: 'BUTTON',
+                    label: 'SELECT ALL',
+                    customId: 'selectAll',
+                    style: 'PRIMARY'
+                },
+                {
+                    type: 'BUTTON',
+                    label: 'DESELECT ALL',
+                    customId: 'deselectAll',
+                    style: 'PRIMARY'
+                },
                 {
                     type: 'BUTTON',
                     label: 'CONFIRM',
