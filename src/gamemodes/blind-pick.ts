@@ -1,6 +1,6 @@
 import { Gamemode } from "../lib/Gamemode";
 import type { Customs } from "lib/Customs";
-import { ButtonInteraction, MessageActionRow, MessageAttachment, MessageEmbed } from "discord.js";
+import { ButtonInteraction, MessageActionRow, MessageAttachment, MessageButton, MessageEmbed } from "discord.js";
 import type { ValAgent } from "lib/ValAgent";
 import type { Player } from "lib/Players";
 import { colors } from "../constants.json";
@@ -249,7 +249,7 @@ export default class BlindPick extends Gamemode {
             components.push(new MessageActionRow({
                 type: 'ACTION_ROW',
                 components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
-                    return {
+                    return new MessageButton({
 
                         type: 'BUTTON',
                         label: a.name,
@@ -258,7 +258,7 @@ export default class BlindPick extends Gamemode {
                         disabled: a.default,
                         style: player.agents.get(a.name) ? 'SUCCESS' : 'SECONDARY'
                         
-                    };
+                    });
                 })
             }));
 
@@ -303,7 +303,7 @@ export default class BlindPick extends Gamemode {
             components.push(new MessageActionRow({
                 type: 'ACTION_ROW',
                 components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
-                    return {
+                    return new MessageButton({
 
                         type: 'BUTTON',
                         label: a.name,
@@ -311,7 +311,7 @@ export default class BlindPick extends Gamemode {
                         emoji: a.emojiID,
                         style: 'SECONDARY'
                         
-                    };
+                    });
                 })
             }));
 
