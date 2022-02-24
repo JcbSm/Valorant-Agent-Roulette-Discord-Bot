@@ -20,8 +20,8 @@ const client = new Client({ intents: [ // For a list: https://discord.com/develo
 
 const commands: ApplicationCommandData[] = [
     {
-        name: 'customs',
-        description: 'Start a Valorant Customs!',
+        name: 'start',
+        description: 'Start agent roulette!',
     },
     {
         name: 'invite',
