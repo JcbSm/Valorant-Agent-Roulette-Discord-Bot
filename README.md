@@ -2,15 +2,15 @@
 Here - A bot to aid you and your pals in making interesting Valorant custom games, unrated team comps or even competitive - if you will.
 
 ---
-### The Concept ::
+## The Concept
 You, and whoever joins you, join together to pick eachothers agents for a valorant game. To begin with, you each tell the bot which agents you have available to pick at the start of a game. This list of agents is then passed to another player, on either team, and they will pick for you the agent you will play.
 
 Each player is given 60 seconds to select which agents they have, and 30 seconds to pick the agent for another person. If they fail to do the latter, a random agent will be picked from the list.
 
-### Invite the bot ::
+## Invite the bot
 Either invite the bot to your server using [this link](https://discord.com/api/oauth2/authorize?client_id=926082464508674060&permissions=277025769536&scope=bot%20applications.commands), or you can clone the repo and run it yourself if you know what you're doing :P
 
-### How it works ::
+## How it works
 Execute the command '/start'
 <p align="center">
   <img src="https://i.imgur.com/3gwtf50.png" alt="Sublime's custom image"/>
