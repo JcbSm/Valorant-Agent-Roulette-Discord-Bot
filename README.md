@@ -28,9 +28,9 @@ Here you will be met with the UI:
 ---
 You can configure the map pool, reroll the map, kick people and start/exit the process.
 
-If you are playing as a team of 5, and just want to pick eachother agents, make sure you all join the same team to avoid duplicate agents being selected. As two of the same agent cannot be picked for one particular team.
+If you are playing as a team of 5, and just want to pick eachothers' agents, make sure you all join the same team to avoid duplicate agents being selected. As two of the same agent cannot be picked for one particular team.
 
-Once everyone's joined and map has been selected, the bot will DM each player with the following message, where they must select which agents they have unlocked.
+Once everyone's joined and the map has been selected, the bot will DM each player with the following message, where they must select which agents they have unlocked.
 
 <p align="center">
   <img src="https://i.imgur.com/lSpPVT5.png"/>
@@ -54,7 +54,7 @@ Once everyone's selected, you can begin! :D
 </p>
 
 
-Then everyone can see who's playing as who
+Then everyone can see who's playing as whom.
 
 <p align="center">
   <img src="https://i.imgur.com/oWX0wOk.png"/>
