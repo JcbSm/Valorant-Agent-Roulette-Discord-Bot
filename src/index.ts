@@ -37,7 +37,7 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 
         switch (interaction.commandName) {
 
-            case 'customs':
+            case 'start':
 
                 const customs = new Customs(client, interaction);
                 await customs.send();
