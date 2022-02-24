@@ -296,6 +296,7 @@ export class Customs {
                     },
                     {
                         type: 'BUTTON',
+                        label: 'Leave',
                         emoji: '❌',
                         customId: 'customLeave',
                         style: 'SECONDARY',
