@@ -3,7 +3,7 @@
 Here - A bot to aid you and your pals in making interesting Valorant custom games, unrated team comps or even competitive - if you will.
 
 ## The Concept
-You, and whoever joins you, join together to pick eachothers agents for a valorant game. To begin with, you each tell the bot which agents you have available to pick at the start of a game. This list of agents is then passed to another player, on either team, and they will pick for you the agent you will play.
+You, and whoever joins you, join together to pick eachothers' agents for a valorant game. To begin with, you each tell the bot which agents you have available to pick at the start of a game. This list of agents is then passed to another player, on either team, and they will pick for you the agent you will play.
 
 Each player is given 60 seconds to select which agents they have, and 30 seconds to pick the agent for another person. If they fail to do the latter, a random agent will be picked from the list.
 
