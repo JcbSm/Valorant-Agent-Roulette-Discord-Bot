@@ -1,6 +1,6 @@
 import type { Snowflake } from "discord.js";
 
-export interface ValAgent {
+export interface Agent {
 
     name: string;
     default: boolean;
@@ -9,7 +9,7 @@ export interface ValAgent {
 
 }
 
-export class ValAgent {
+export class Agent {
 
     constructor(name: string, emoji: string, emojiID: Snowflake, isDefault: boolean = false) {
 

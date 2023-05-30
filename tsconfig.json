@@ -1,13 +1,25 @@
-
-{   
+{
     "extends": "@sapphire/ts-config",
-    "target": "esnext",
-    "module": "esnext",
     "compilerOptions": {
+
+        // Module stuff
+        "module": "ESNext",
+        "target": "ESNext",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+
+        // Compilation directories
         "rootDir": "src",
         "outDir": "dist",
-        "baseUrl": "./src",
         "tsBuildInfoFile": "dist/.tsbuildinfo",
-    },
-    "include": ["src"]
+
+        // Paths and such
+        "baseUrl": "./src",
+        "paths": {
+            "#lib/*": ["./lib/*"]
+        },
+
+        // Ignore Depracation
+        "ignoreDeprecations": "5.0"
+    }
 }
