@@ -1,4 +1,4 @@
-import { BotClient } from "#lib/BotClient";
+import { BotClient } from "#lib/client/BotClient";
 import { ApplicationCommandRegistries, RegisterBehavior } from "@sapphire/framework";
 
 // init dotenv
