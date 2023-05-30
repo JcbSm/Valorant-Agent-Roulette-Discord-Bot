@@ -180,16 +180,9 @@ export default class BlindPick extends Gamemode {
                         name: 'TEAM 2',
                         value: '\u200b\n' + this.getTeam2List() + '\n\u200b',
                         inline: true
-                    },
-                    {
-                        name: 'MAP',
-                        value: this.customs.map.name
                     }
                 ],
-                color: colors.valRed,
-                image: {
-                    url: `attachment://${this.customs.map.name}.png`
-                }
+                color: colors.valRed
             })
         ]})
 
@@ -241,12 +234,12 @@ export default class BlindPick extends Gamemode {
     getAgentListComponents(player: Player) {
 
         const components: MessageActionRow[] = [];
-        const agents = [...this.customs.agents];
+        const agents = [...this.nonDefaultAgents];
 
         for (let i = 0; i < agents.length; i += 5) {
 
             
-            components.push(new MessageActionRow({
+            components.push(new MessageActionRow<MessageButton>({
                 type: 'ACTION_ROW',
                 components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
                     return new MessageButton({
@@ -264,7 +257,7 @@ export default class BlindPick extends Gamemode {
 
         }
 
-        components.push(new MessageActionRow({
+        components.push(new MessageActionRow<MessageButton>({
             type: 'ACTION_ROW',
             components: [
                 {
@@ -300,7 +293,7 @@ export default class BlindPick extends Gamemode {
         for (let i = 0; i < agents.length; i += 5) {
 
             
-            components.push(new MessageActionRow({
+            components.push(new MessageActionRow<MessageButton>({
                 type: 'ACTION_ROW',
                 components: [...agents].slice(i, i + 5).map((a: ValAgent) => {
                     return new MessageButton({

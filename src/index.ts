@@ -35,6 +35,8 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 
     if (interaction.isApplicationCommand()) {
 
+        await interaction.deferReply({ ephemeral: true });
+
         switch (interaction.commandName) {
 
             case 'start':
@@ -45,9 +47,9 @@ client.on('interactionCreate', async (interaction: Interaction) => {
 
             case 'invite':
 
-                interaction.reply({ ephemeral: true, embeds: [{ 
+                interaction.editReply({ embeds: [{ 
                     title: 'Invite',
-                    url: 'https://discord.com/api/oauth2/authorize?client_id=926082464508674060&permissions=277025769536&scope=bot%20applications.commands',
+                    url: 'https://discord.com/api/oauth2/authorize?client_id=' + client.user!.id + '&permissions=277025769536&scope=bot%20applications.commands',
                     color: colors.valRed
                 }]});
                 break;

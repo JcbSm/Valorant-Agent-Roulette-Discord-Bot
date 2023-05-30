@@ -1,7 +1,6 @@
-import { Client, BaseCommandInteraction, Snowflake, Message, MessageEmbed, SelectMenuInteraction, ButtonInteraction, MessageActionRow, MessageAttachment } from "discord.js";
+import { Client, BaseCommandInteraction, Snowflake, Message, MessageEmbed, SelectMenuInteraction, ButtonInteraction, MessageActionRow, MessageButton } from "discord.js";
 import type { Gamemode } from "./Gamemode";
 import { Player } from "./Players";
-import { ValMap } from "./ValMap";
 import { ValAgent } from "./ValAgent";
 import { promises as fsp } from "fs";
 
@@ -12,11 +11,8 @@ export interface Customs {
     client: Client;
     interaction: BaseCommandInteraction;
     players: Map<Snowflake, Player>;
-    maps: ValMap[];
-    mappool: ValMap[];
     gamemode: Gamemode;
     gamemodes: Gamemode[];
-    map: ValMap;
     message: Message;
     agents: ValAgent[];
 }
@@ -28,16 +24,6 @@ export class Customs {
         this.client = client;
         this.interaction = interaction;
         this.players = new Map();
-
-        this.maps = [
-            new ValMap('ASCENT', 0),
-            new ValMap('BIND', 1),
-            new ValMap('BREEZE', 2),
-            new ValMap('FRACTURE', 3),
-            new ValMap('HAVEN', 4),
-            new ValMap('ICEBOX', 5),
-            new ValMap('SPLIT', 6,)
-        ];
 
         this.agents = [
             new ValAgent('BRIMSTONE', '🌫', '930526575299027034', true),
@@ -57,13 +43,14 @@ export class Customs {
             new ValAgent('ASTRA', '🌌', '930526576028827748'),
             new ValAgent('KAY/O', '🤖', '930526575596810301'),
             new ValAgent('CHAMBER', '🃏', '930526575332573235'),
-            new ValAgent('NEON', '⚡', '936618293417115698')
+            new ValAgent('NEON', '⚡', '936618293417115698'),
+            new ValAgent('FADE', '🦃', '1113104096593977446'),
+            new ValAgent('HARBOR', '🛥️', '1113104105804669021'),
+            new ValAgent('GECKO', '🦎', '1113104098770833520')
         ]
 
-        this.mappool = [...this.maps];
         this.gamemode = new BlindPick(this);
         this.gamemodes = [];
-        this.map = this.maps[0];
 
     }
 
@@ -71,9 +58,9 @@ export class Customs {
 
         this.gamemodes = await this.getGamemodes();
 
-        this.message = await this.interaction.channel?.send({ embeds: [ this.getEmbed() ], components: this.getComponents(), files: [ this.getMapImageAttachment() ] })!;
+        this.message = await this.interaction.channel?.send({ embeds: [ this.getEmbed() ], components: this.getComponents() })!;
 
-        await this.interaction.reply({ content: '***OPTIONS***', ephemeral: true, components: this.getOptionsComponents() });
+        await this.interaction.editReply({ content: '***OPTIONS***', components: this.getOptionsComponents() });
 
         const optionsCollector = (await this.interaction.fetchReply() as Message).createMessageComponentCollector();
 
@@ -82,19 +69,6 @@ export class Customs {
             if (interaction.isSelectMenu()) {
 
                 switch (interaction.customId) {
-
-                    case 'mapSelectMenu':
-
-                        this.mappool = [];
-
-                        interaction.values.forEach(v => {
-
-                            this.mappool.push(this.maps.find(m => m.name === v)!);
-
-                        })
-
-                        interaction.update({ components: this.getOptionsComponents() });
-                        break;
 
                     case 'gamemodeSelectMenu':
 
@@ -114,21 +88,6 @@ export class Customs {
             } else if (interaction.isButton()) {
 
                 switch (interaction.customId) {
-
-                    case 'selectMapPool':
-                        interaction.update({ components: [ this.getMapSelectMenu() ]});
-                        break;
-
-                    case 'selectGamemode':
-                        interaction.update({ components: [ this.getGamemodeSelectMenu() ]});
-                        break;
-
-                    case 'mapRoll':
-
-                        this.map = this.mappool[Math.floor(Math.random() * this.mappool.length)];
-                        await this.message.edit({ embeds: [ this.getEmbed() ], files: [ this.getMapImageAttachment() ] });
-                        await interaction.update({});
-                        return;
 
                     case 'kickPlayer':
                         interaction.update({ components: [ this.getKickPlayerSelectMenu() ]});
@@ -224,19 +183,9 @@ export class Customs {
             description: `Leader: <@${this.interaction.user.id}>\nPlayers: \`${this.players.size}/10\`\n\u200b`,
             fields: [
                 {
-                    name: 'MAP POOL',
-                    value: this.getMapPoolList() + '\n\u200b',
-                    inline: true
-                },
-                {
-                    name: '\u200b',
-                    value: '\u200b',
-                    inline: true
-                },
-                {
                     name: 'PLAYERS',
                     value: this.getPlayerList() + '\n\u200b',
-                    inline: true
+                    inline: false
                 },
                 {
                     name: 'TEAM 1',
@@ -253,15 +202,8 @@ export class Customs {
                     value: this.getTeam2List() + '\n\u200b',
                     inline: true
                 },
-                {
-                    name: 'CURRENT MAP',
-                    value: this.map.name
-                }
             ],
             color: colors.valRed,
-            image: {
-                url: `attachment://${this.map.name}.png`
-            }
         })
 
     }
@@ -269,38 +211,34 @@ export class Customs {
     getComponents(disabled = false): MessageActionRow[] {
 
         return [
-            new MessageActionRow({
+            new MessageActionRow<MessageButton>({
 
                 type: 'ACTION_ROW',
                 components: [
-                    {
-                        type: 'BUTTON',
+                    new MessageButton({
                         customId: 'filler',
                         label: '\u200b',
                         style: 'SECONDARY',
                         disabled: true,
-                    },
-                    {
-                        type: 'BUTTON',
+                    }),
+                    new MessageButton({
                         label: 'JOIN TEAM 1',
                         customId: 'customTeam1',
                         style: 'PRIMARY',
                         disabled: disabled || [...this.players.values()].filter(p => p.team === 0).length >= 5
-                    },
-                    {
-                        type: 'BUTTON',
+                    }),
+                    new MessageButton({
                         label: 'JOIN TEAM 2',
                         customId: 'customTeam2',
                         style: 'DANGER',
                         disabled: disabled || [...this.players.values()].filter(p => p.team === 1).length >= 5
-                    },
-                    {
-                        type: 'BUTTON',
+                    }),
+                    new MessageButton({
                         label: 'LEAVE',
                         customId: 'customLeave',
                         style: 'SECONDARY',
                         disabled: disabled
-                    }
+                    })
                 ]
             })]
 
@@ -309,28 +247,7 @@ export class Customs {
     getOptionsComponents(): MessageActionRow[] {
 
         return [
-
-            new MessageActionRow({
-                type: 'ACTION_ROW',
-                components: [
-                    {
-                        type: 'BUTTON',
-                        label: 'SELECT MAP POOL',
-                        customId: 'selectMapPool',
-                        style: 'SECONDARY',
-                        emoji: '🗺'
-                    },
-                    {
-                        type: 'BUTTON',
-                        label: 'RE-ROLL MAP',
-                        customId: 'mapRoll',
-                        style: 'PRIMARY',
-                        emoji: '🎲'
-                    },
-                ]
-            }),
-
-            new MessageActionRow({
+            new MessageActionRow<MessageButton>({
                 type: 'ACTION_ROW',
                 components: [
                     {
@@ -360,7 +277,7 @@ export class Customs {
 
     getGamemodeSelectMenu(): MessageActionRow {
 
-        return new MessageActionRow({
+        return new MessageActionRow<MessageButton>({
             type: 'ACTION_ROW',
             components: [
                 {
@@ -382,33 +299,9 @@ export class Customs {
 
     }
 
-    getMapSelectMenu(): MessageActionRow {
-
-        return new MessageActionRow({
-            type: 'ACTION_ROW',
-            components: [
-                {
-                    type: 'SELECT_MENU',
-                    maxValues: 7,
-                    minValues: 1,
-                    customId: 'mapSelectMenu',
-                    placeholder: 'Select map pool...',
-                    options: this.maps.map(m => {
-
-                        return {
-                            label: m.name,
-                            value: m.name
-                        }
-
-                    })
-                }
-            ]
-        });
-    }
-
     getKickPlayerSelectMenu(): MessageActionRow {
 
-        return new MessageActionRow({
+        return new MessageActionRow<MessageButton>({
             type: 'ACTION_ROW',
             components: [
                 {
@@ -448,17 +341,4 @@ export class Customs {
         return [...this.players.values()].filter(p => p.team === 1).map((p: Player) => `<@${p.user.id}>`).join('\n')
 
     }
-
-    getMapImageAttachment(): MessageAttachment {
-
-        return new MessageAttachment(`./src/assets/maps/${this.map.name.toLowerCase()}.png`, `${this.map.name}.png`);
-
-    }
-
-    getMapPoolList(): string {
-
-        return [...this.mappool].map(m => m.name).join('\n');
-
-    }
-
 }
