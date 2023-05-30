@@ -1,18 +1,18 @@
 import type { Message, User } from "discord.js";
-import type { ValAgent } from "./ValAgent";
+import type { Agent } from "./Agent";
 
 export interface Player {
     user: User;
     team: number;
-    agents: Map<String, ValAgent>;
+    agents: Map<String, Agent>;
     selectionMessage: Message;
-    selectedAgent: ValAgent;
+    selectedAgent: Agent;
     selectedBy: Player;
 }
 
 export class Player {
     
-    constructor(user: User, team: 0 | 1, agents: ValAgent[]) {
+    constructor(user: User, team: 0 | 1, agents: Agent[]) {
 
         this.user = user;
         this.team = team;

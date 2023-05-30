@@ -18,8 +18,5 @@
         "paths": {
             "#lib/*": ["./lib/*"]
         },
-
-        // Ignore Depracation
-        "ignoreDeprecations": "5.0"
     }
 }
