@@ -24,6 +24,6 @@ export default class extends Command {
 
         await interaction.deferReply({ ephemeral: true });
 
-        await interaction.editReply({ content: 'Hello World!' })
+        await interaction.editReply({ content: 'Hello World!' });
     }
 }

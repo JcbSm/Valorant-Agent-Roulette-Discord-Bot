@@ -1,5 +1,5 @@
 import type { Message, User } from "discord.js";
-import type { Agent } from "./Agent";
+import type { Agent } from "../valorant/Agent";
 
 export interface Player {
     user: User;
